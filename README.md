@@ -3,7 +3,7 @@
 [![Telegram](https://img.shields.io/badge/tg-WaffleLapkin-9cf?logo=telegram)](https://vee.gg/t/WaffleLapkin)
 <!--[![crates.io](http://meritbadge.herokuapp.com/phantasm)](https://crates.io/crates/phantasm)
 [![documentation (docs.rs)](https://docs.rs/phantasm/badge.svg)](https://docs.rs/phantasm) -->
-[![documentation (master)](https://img.shields.io/badge/docs-master-blue)](https://phantasm.netlify.com/phantasm)
+[![documentation (master)](https://img.shields.io/badge/docs-master-blue)](https://phantasm-rs.netlify.com)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 `phantasm` provides tools for working with variance. <!-- See [docs](https://docs.rs/phantasm) for more. -->  
