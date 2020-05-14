@@ -261,7 +261,6 @@ mod r#impl {
     pub enum Never {}
 
     /// For documentation see [`Invariant`](crate::Invariant#type)'s docs.
-    #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
     pub enum Invariant<T: ?Sized> {
         /// Uninhibited variant that uses `T`.
         #[doc(hidden)]
@@ -284,7 +283,6 @@ mod r#impl {
     }
 
     /// For documentation see [`Covariant`](crate::Covariant#type)'s docs.
-    #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
     pub enum Covariant<T: ?Sized> {
         /// Uninhibited variant that uses `T`.
         #[doc(hidden)]
@@ -306,7 +304,6 @@ mod r#impl {
 
     /// For documentation see [`Contravariant`](crate::Contravariant#type)'s
     /// docs.
-    #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
     pub enum Contravariant<T: ?Sized> {
         /// Uninhibited variant that uses `T`.
         #[doc(hidden)]
@@ -326,6 +323,60 @@ mod r#impl {
         /// [cnt]: crate::Contravariant#type
         Contravariant,
     }
+
+    macro_rules! impls {
+        (for $T:ident) => {
+            impl<T: ?Sized> Copy for $T<T> {}
+
+            impl<T: ?Sized> Clone for $T<T> {
+                fn clone(&self) -> Self {
+                    crate::$T
+                }
+            }
+
+            impl<T: ?Sized> Default for $T<T> {
+                fn default() -> Self {
+                    crate::$T
+                }
+            }
+
+            impl<T: ?Sized> core::fmt::Debug for $T<T> {
+                fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+                    f.write_str(stringify!($T))
+                }
+            }
+
+            impl<T: ?Sized> Ord for $T<T> {
+                fn cmp(&self, _: &Self) -> core::cmp::Ordering {
+                    // There is only one possible value, so it's always equal to itself
+                    core::cmp::Ordering::Equal
+                }
+            }
+
+            impl<T: ?Sized> PartialOrd for $T<T> {
+                fn partial_cmp(&self, _: &Self) -> Option<core::cmp::Ordering> {
+                    // There is only one possible value, so it's always equal to itself
+                    Some(core::cmp::Ordering::Equal)
+                }
+            }
+
+            impl<T: ?Sized> Eq for $T<T> {}
+
+            impl<T: ?Sized> PartialEq for $T<T> {
+                fn eq(&self, _: &Self) -> bool {
+                    // There is only one possible value, so it's always equal to itself
+                    true
+                }
+            }
+
+            impl<T: ?Sized> core::hash::Hash for $T<T> {
+                fn hash<H: core::hash::Hasher>(&self, _: &mut H) {}
+            }
+        };
+    }
+    impls!(for Invariant);
+    impls!(for Covariant);
+    impls!(for Contravariant);
 }
 
 #[cfg(any(test, doctest /* needed for compile_fail tests */))]
