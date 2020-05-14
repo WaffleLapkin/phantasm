@@ -16,6 +16,7 @@ categories = ["no-std", "rust-patterns"]
 
 exclude = [
     ".github/*",
+    "netlify.toml",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
