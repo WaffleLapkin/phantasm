@@ -38,24 +38,24 @@
 //! zero-sized type that acts like it owns `T`.
 //!
 //! However, [`PhantomData`][phd] comes with a number of issues:
-//! 1. Variance is a hard thing by itself, but [`PhantomData`][phd] makes it even
-//!    harder to understand. It's not straightforward to understand what statement like
-//!    `PhantomData<fn(A, B) -> B>` does (contravariant over `A` and invariant over
-//!    `B`)
+//! 1. Variance is a hard thing by itself, but [`PhantomData`][phd] makes it
+//!    even harder to understand. It's not straightforward to understand what
+//!    statement like `PhantomData<fn(A, B) -> B>` does (contravariant over `A`
+//!    and invariant over `B`)
 //! 2. Sometimes it works badly in `const` context (see next
 //!    [paragraph](#function-pointers-in-const-fn-are-unstable))
 //!
-//! `phantasm`'s naming helps with the first by making the original intention clearer
-//! (though variance still is a hard-to-understand thing)
+//! `phantasm`'s naming helps with the first by making the original intention
+//! clearer (though variance still is a hard-to-understand thing)
 //!
 //! [nom]: https://doc.rust-lang.org/nomicon/subtyping.html#subtyping-and-variance
 //!
 //! ## function pointers in `const fn` are unstable
 //!
-//! It's common practice to make a type invariant over `T` with `PhantomData<fn(T) -> T>`.
-//! However, if you've ever tried to use it in a `const fn`, you know that it's
-//! painful (see [rust-lang/69459][my_issue] and [rust-lang/67649][or_issue]).
-//! This crate helps with this problem:
+//! It's common practice to make a type invariant over `T` with
+//! `PhantomData<fn(T) -> T>`. However, if you've ever tried to use it in a
+//! `const fn`, you know that it's painful (see [rust-lang/69459][my_issue] and
+//! [rust-lang/67649][or_issue]). This crate helps with this problem:
 //!
 //! ```
 //! use phantasm::Invariant;
@@ -84,8 +84,9 @@
 //! ## comparison operators cannot be chained
 //!
 //! Note: you can't use `Invariant<Ty>` as a value (just as
-//! [`PhantomData`][phd]). To create `Invariant<Ty>` value use turbofish: `Invariant::<Ty>`
-//! (same goes for both [`Covariant<T>`][cov] and [`Contravariant<T>`][cnt])
+//! [`PhantomData`][phd]). To create `Invariant<Ty>` value use turbofish:
+//! `Invariant::<Ty>` (same goes for both [`Covariant<T>`][cov] and
+//! [`Contravariant<T>`][cnt])
 //!
 //! ```compile_fail
 //! // won't compile
