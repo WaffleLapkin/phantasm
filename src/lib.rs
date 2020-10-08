@@ -34,28 +34,28 @@
 //! better explanation)
 //!
 //! To mitigate this issue and control the variance there is a type called
-//! [`core::marker::PhantomData<T>`][phd]. [`PhantomData<T>`][phd] is a zst type
-//! that acts like it owns `T`.
+//! [`core::marker::PhantomData<T>`][phd]. [`PhantomData<T>`][phd] is a
+//! zero-sized type that acts like it owns `T`.
 //!
-//! However [`PhantomData`][phd] come with a number of issues
-//! 1. Variance is a hard thing itself, but [`PhantomData`][phd] makes it even
-//!    harder to understand. It's not so clear to understand what does smt like
-//!    `PhantomData<fn(A, B) -> B>` (contravariant over `A` and invariant over
+//! However, [`PhantomData`][phd] comes with a number of issues:
+//! 1. Variance is a hard thing by itself, but [`PhantomData`][phd] makes it even
+//!    harder to understand. It's not straightforward to understand what statement like
+//!    `PhantomData<fn(A, B) -> B>` does (contravariant over `A` and invariant over
 //!    `B`)
-//! 2. Sometimes it works badly in const context (see next
+//! 2. Sometimes it works badly in `const` context (see next
 //!    [paragraph](#function-pointers-in-const-fn-are-unstable))
 //!
-//! `phantasm`'s naming somehow helps woth `1.` making code clearer (though
-//! variance still is a hard-to-understand thing)
+//! `phantasm`'s naming helps with the first by making the original intention clearer
+//! (though variance still is a hard-to-understand thing)
 //!
 //! [nom]: https://doc.rust-lang.org/nomicon/subtyping.html#subtyping-and-variance
 //!
-//! ## function pointers in const fn are unstable
+//! ## function pointers in `const fn` are unstable
 //!
-//! It's common to make a type invariant over `T` with `PhantomData<fn(T) -> T>`
-//! however, if you've ever tryed to use it in `const fn`, you know that it's
-//! painfull (see [rust-lang/69459][my_issue] and [rust-lang/67649][or_issue]).
-//! This crate helps mitigate this issue:
+//! It's common practice to make a type invariant over `T` with `PhantomData<fn(T) -> T>`.
+//! However, if you've ever tried to use it in a `const fn`, you know that it's
+//! painful (see [rust-lang/69459][my_issue] and [rust-lang/67649][or_issue]).
+//! This crate helps with this problem:
 //!
 //! ```
 //! use phantasm::Invariant;
@@ -77,14 +77,14 @@
 //! ```
 //! use phantasm::{Contravariant, Covariant, Invariant};
 //!
-//! # // yep, I just don't want to copy-paste everything yet another time
+//! # // yep, I just don't want to copy&paste everything yet again
 //! struct Test<'a, 'b, 'c>(Invariant<&'a ()>, Covariant<&'b ()>, Contravariant<&'c ()>);
 //! ```
 //!
 //! ## comparison operators cannot be chained
 //!
 //! Note: you can't use `Invariant<Ty>` as a value (just as
-//! [`PhantomData`][phd]). To create `Invariant<Ty>` value use `Invariant::<Ty>`
+//! [`PhantomData`][phd]). To create `Invariant<Ty>` value use turbofish: `Invariant::<Ty>`
 //! (same goes for both [`Covariant<T>`][cov] and [`Contravariant<T>`][cnt])
 //!
 //! ```compile_fail
@@ -102,7 +102,7 @@
 //!
 //! ## many types
 //!
-//! When you need to set variance of many types at once, just use typle:
+//! When you need to set variance of many types at once, just use a tuple:
 //! ```
 //! struct Test<A, B>(phantasm::Covariant<(A, B)>);
 //! ```
@@ -111,7 +111,7 @@
 #![deny(missing_docs)]
 #![forbid(unsafe_code)]
 
-/// Marker zst type that is invariant over `T`.
+/// Marker zero-sized type that is invariant over `T`.
 ///
 /// "Invariant" means that given `F<_>`, `Super` and `Sub` (where `Sub` is a
 /// subtype of `Super`), `F<Sub>` is **not** a subtype of `F<Super>` and vice
@@ -148,7 +148,7 @@
 ///   nomicon chapter
 pub type Invariant<T: ?Sized> = r#impl::Invariant<T>;
 
-/// Marker zst type that is covariant over `T`.
+/// Marker zero-sized type that is covariant over `T`.
 ///
 /// "Covariant" means that given `F<_>`, `Super` and `Sub` (where `Sub` is a
 /// subtype of `Super`), `F<Sub>` **is** a subtype of `F<Super>` (but `F<Super>`
@@ -187,7 +187,7 @@ pub type Invariant<T: ?Sized> = r#impl::Invariant<T>;
 ///   nomicon chapter
 pub type Covariant<T: ?Sized> = r#impl::Covariant<T>;
 
-/// Marker zst type that is contravariant over `T`.
+/// Marker zero-sized type that is contravariant over `T`.
 ///
 /// "Contravariant" means that given `F<_>`, `Super` and `Sub` (where `Sub` is a
 /// subtype of `Super`), `F<Super>` **is** a subtype of `F<Sub>` (but `F<Sub>`
@@ -233,11 +233,11 @@ pub use crate::r#impl::reexport_hack::*;
 
 /// Implementation of the types in the crate.
 ///
-/// This is a private module to hide ugly enum  implementation details and make
+/// This is a private module to hide ugly enum implementation details and make
 /// doc cleaner.
 mod r#impl {
     // Note: the idea of the implementation is actually copy-pasted from
-    // dtolnay's ghost <https://docs.rs/ghost/> (I haven't used it to be 0-dep, yep I'am a bad guy)
+    // dtolnay's ghost <https://docs.rs/ghost/> (I haven't used it to be 0-dep, yep, I'm a bad guy)
 
     /// A hack to have both type and variant in the same namespace.
     ///
@@ -262,7 +262,7 @@ mod r#impl {
 
     /// For documentation see [`Invariant`](crate::Invariant#type)'s docs.
     pub enum Invariant<T: ?Sized> {
-        /// Uninhibited variant that uses `T`.
+        /// Uninhabited variant that uses `T`.
         #[doc(hidden)]
         #[deprecated(
             since = "0.1.0",
@@ -284,7 +284,7 @@ mod r#impl {
 
     /// For documentation see [`Covariant`](crate::Covariant#type)'s docs.
     pub enum Covariant<T: ?Sized> {
-        /// Uninhibited variant that uses `T`.
+        /// Uninhabited variant that uses `T`.
         #[doc(hidden)]
         #[deprecated(
             since = "0.1.0",
@@ -302,7 +302,7 @@ mod r#impl {
         Covariant,
     }
 
-    /// For documentation see [`Contravariant`](crate::Contravariant#type)'s
+    /// For documentation, see [`Contravariant`](crate::Contravariant#type)'s
     /// docs.
     pub enum Contravariant<T: ?Sized> {
         /// Uninhibited variant that uses `T`.
