@@ -1,6 +1,5 @@
 # phantasm
 [![CI status](https://github.com/WaffleLapkin/phantasm/workflows/Continuous%20integration/badge.svg)](https://github.com/WaffleLapkin/phantasm/actions)
-[![Telegram](https://img.shields.io/badge/tg-WaffleLapkin-9cf?logo=telegram)](https://vee.gg/t/WaffleLapkin)
 [![crates.io](https://img.shields.io/crates/v/phantasm)](https://crates.io/crates/phantasm)
 [![documentation (docs.rs)](https://docs.rs/phantasm/badge.svg)](https://docs.rs/phantasm)
 [![documentation (master)](https://img.shields.io/badge/docs-master-blue)](https://phantasm-rs.netlify.com)
