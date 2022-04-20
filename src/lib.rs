@@ -75,14 +75,14 @@
 //! [or_issue]: https://github.com/rust-lang/rust/issues/67649
 //! [stabilization PR]: https://github.com/rust-lang/rust/pull/93827
 //!
-//! ## life
+//! ## lifetimes
 //!
-//! For variance over lifetimes, use `&'l ()`:
+//! For variance over lifetimes, use `Lt<'l>`:
 //! ```
-//! use phantasm::{Contravariant, Covariant, Invariant};
+//! use phantasm::{Contravariant, Covariant, Invariant, Lt};
 //!
 //! # // yep, I just don't want to copy&paste everything yet again
-//! struct Test<'a, 'b, 'c>(Invariant<&'a ()>, Covariant<&'b ()>, Contravariant<&'c ()>);
+//! struct Test<'a, 'b, 'c>(Invariant<Lt<'a>>, Covariant<Lt<'b>>, Contravariant<Lt<'c>>);
 //! ```
 //!
 //! ## comparison operators cannot be chained
@@ -139,20 +139,20 @@
 /// ```
 ///
 /// ```compile_fail,E0308
-/// use phantasm::Invariant;
+/// use phantasm::{Invariant, Lt};
 ///
 /// // `F<Sub>` is **not** a subtype of `F<Super>`
-/// fn covariant_fail<'l>(with_sub: Invariant<&'static ()>) {
-///     let with_super: Invariant<&'l ()> = with_sub; // mismatched types
+/// fn covariant_fail<'l>(with_sub: Invariant<Lt<'static>>) {
+///     let with_super: Invariant<Lt<'l>> = with_sub; // mismatched types
 /// }
 /// ```
 ///
 /// ```compile_fail,E0308
-/// use phantasm::Invariant;
+/// use phantasm::{Invariant, Lt};
 ///
 /// // `F<Super>` is **not** a subtype of `F<Sub>`
-/// fn contravariant_fail<'l>(with_super: Invariant<&'l ()>) {
-///     let with_sub: Invariant<&'static ()> = with_super; // mismatched types
+/// fn contravariant_fail<'l>(with_super: Invariant<Lt<'l>>) {
+///     let with_sub: Invariant<Lt<'static>> = with_super; // mismatched types
 /// }
 /// ```
 ///
@@ -184,20 +184,20 @@ pub type Invariant<T: ?Sized> = r#impl::Invariant<T>;
 /// ```
 ///
 /// ```
-/// use phantasm::Covariant;
+/// use phantasm::{Covariant, Lt};
 ///
 /// // `F<Sub>` **is** a subtype of `F<Super>`
-/// fn covariant_pass<'l>(with_sub: Covariant<&'static ()>) {
-///     let with_super: Covariant<&'l ()> = with_sub;
+/// fn covariant_pass<'l>(with_sub: Covariant<Lt<'static>>) {
+///     let with_super: Covariant<Lt<'l>> = with_sub;
 /// }
 /// ```
 ///
 /// ```compile_fail,E0308
-/// use phantasm::Covariant;
+/// use phantasm::{Covariant, Lt};
 ///
 /// // `F<Super>` is **not** a subtype of `F<Sub>`
-/// fn contravariant_fail<'l>(with_super: Covariant<&'l ()>) {
-///     let with_sub: Covariant<&'static ()> = with_super; // mismatched types
+/// fn contravariant_fail<'l>(with_super: Covariant<Lt<'l>>) {
+///     let with_sub: Covariant<Lt<'static>> = with_super; // mismatched types
 /// }
 /// ```
 ///
@@ -229,20 +229,20 @@ pub type Covariant<T: ?Sized> = r#impl::Covariant<T>;
 /// ```
 ///
 /// ```compile_fail,E0308
-/// use phantasm::Contravariant;
+/// use phantasm::{Contravariant, Lt};
 ///
 /// // `F<Sub>` is **not** a subtype of `F<Super>`
-/// fn covariant_fail<'l>(with_sub: Contravariant<&'static ()>) {
-///     let with_super: Contravariant<&'l ()> = with_sub; // mismatched types
+/// fn covariant_fail<'l>(with_sub: Contravariant<Lt<'static>>) {
+///     let with_super: Contravariant<Lt<'l>> = with_sub; // mismatched types
 /// }
 /// ```
 ///
 /// ```
-/// use phantasm::Contravariant;
+/// use phantasm::{Contravariant, Lt};
 ///
 /// // `F<Super>` **is** a subtype of `F<Sub>`
-/// fn contravariant_pass<'l>(with_super: Contravariant<&'l ()>) {
-///     let with_sub: Contravariant<&'static ()> = with_super;
+/// fn contravariant_pass<'l>(with_super: Contravariant<Lt<'l>>) {
+///     let with_sub: Contravariant<Lt<'static>> = with_super;
 /// }
 /// ```
 ///
@@ -253,6 +253,12 @@ pub type Covariant<T: ?Sized> = r#impl::Covariant<T>;
 /// - [Subtyping and Variance](https://doc.rust-lang.org/nomicon/subtyping.html)
 ///   nomicon chapter
 pub type Contravariant<T: ?Sized> = r#impl::Contravariant<T>;
+
+/// Marker zero-sized type that is covariant over `'lifetime`.
+///
+/// You can use it with other types from this crate to denote variance over a
+/// particular lifetime, instead of a type.
+pub type Lt<'lifetime> = r#impl::Lt<'lifetime>;
 
 /// Brings `Invariant`/`Covariant`/`Contravariant` values to scope (in addition
 /// to types)
@@ -281,7 +287,9 @@ mod r#impl {
     ///
     /// (idk how it works, but it works)
     pub mod reexport_hack {
-        pub use super::{Contravariant::Contravariant, Covariant::Covariant, Invariant::Invariant};
+        pub use super::{
+            Contravariant::Contravariant, Covariant::Covariant, Invariant::Invariant, Lt::Lt,
+        };
     }
 
     /// Replacement for `!` aka never that will never be stabilized.
@@ -355,6 +363,26 @@ mod r#impl {
         // over `T`
     }
 
+    /// For documentation see [`Life`](crate::Life#type)'s docs.
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub enum Lt<'a> {
+        /// The only possible [`Lt<_>`][life] value. For type see
+        /// [`Lt`][life] docs.
+        ///
+        /// [life]: crate::Lt#type
+        Lt,
+
+        /// Uninhibited variant that uses `'a`.
+        #[doc(hidden)]
+        #[deprecated(
+            since = "0.1.3",
+            note = "you shouldn't use `Life` as a enum and/or use `__Phantom` variant of it. This \
+                    variant is only used to use the generic parameter. It's implementation detail \
+                    and may change at any time."
+        )]
+        __Phantom(core::marker::PhantomData<&'a ()>, Never),
+    }
+
     // #[derive] doesn't work for us since it adds unnecessary bounds to generics
     macro_rules! impls {
         (for $T:ident) => {
@@ -410,11 +438,17 @@ mod r#impl {
     impls!(for Invariant);
     impls!(for Covariant);
     impls!(for Contravariant);
+
+    impl core::fmt::Debug for Lt<'_> {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            f.write_str("Life")
+        }
+    }
 }
 
 #[cfg(any(test, doctest /* needed for compile_fail tests */))]
 mod tests {
-    use crate::{Contravariant, Covariant, Invariant};
+    use crate::{Contravariant, Covariant, Invariant, Lt};
     use core::mem::size_of;
 
     type T = [u8]; // Just an example type. Can be any type actually.
@@ -425,12 +459,14 @@ mod tests {
     const _: Covariant<T> = Covariant::<T>;
     /// Tests that `Contravariant` can be created in const context.
     const _: Contravariant<T> = Contravariant::<T>;
+    const _: Lt<'static> = Lt::<'static>;
 
     #[test]
     fn zstness() {
         assert_eq!(size_of::<Invariant<T>>(), 0);
         assert_eq!(size_of::<Covariant<T>>(), 0);
         assert_eq!(size_of::<Contravariant<T>>(), 0);
+        assert_eq!(size_of::<Lt<'static>>(), 0);
     }
 
     #[test]
@@ -438,17 +474,18 @@ mod tests {
         assert_eq!(format!("{:?}", Invariant::<T>), "Invariant");
         assert_eq!(format!("{:?}", Covariant::<T>), "Covariant");
         assert_eq!(format!("{:?}", Contravariant::<T>), "Contravariant");
+        assert_eq!(format!("{:?}", Lt::<'static>), "Life");
     }
 
     /// ```compile_fail,E0308
-    /// use phantasm::Invariant;
-    /// fn contravariant_fail<'l>(arg: Invariant<&'l ()>) -> Invariant<&'static ()> {
+    /// use phantasm::{Invariant, Lt};
+    /// fn contravariant_fail<'l>(arg: Invariant<Lt<'l>>) -> Invariant<Lt<'static>> {
     ///     arg
     /// }
     /// ```
     /// ```compile_fail,E0308
-    /// use phantasm::Invariant;
-    /// fn covariant_fail<'l>(arg: Invariant<&'static ()>) -> Invariant<&'l ()> {
+    /// use phantasm::{Invariant, Lt};
+    /// fn covariant_fail<'l>(arg: Invariant<Lt<'static>>) -> Invariant<Lt<'l>> {
     ///     arg
     /// }
     /// ```
@@ -456,13 +493,13 @@ mod tests {
     fn invariance() {}
 
     /// ```compile_fail,E0308
-    /// use phantasm::Covariant;
-    /// fn contravariant_fail<'l>(arg: Covariant<&'l ()>) -> Covariant<&'static ()> {
+    /// use phantasm::{Covariant, Lt};
+    /// fn contravariant_fail<'l>(arg: Covariant<Lt<'l>>) -> Covariant<Lt<'static>> {
     ///     arg
     /// }
     /// ```
     #[allow(dead_code)]
-    fn covariance<'l>(arg: Covariant<&'static ()>) -> Covariant<&'l ()> {
+    fn covariance<'l>(arg: Covariant<Lt<'static>>) -> Covariant<Lt<'l>> {
         // This coercion is only legal because the lifetime parameter is
         // covariant. If it were contravariant or invariant,
         // this would not compile.
@@ -470,13 +507,13 @@ mod tests {
     }
 
     /// ```compile_fail,E0308
-    /// use phantasm::Contravariant;
-    /// fn covariant_fail<'l>(arg: Contravariant<&'static ()>) -> Contravariant<&'l ()> {
+    /// use phantasm::{Contravariant, Lt};
+    /// fn covariant_fail<'l>(arg: Contravariant<Lt<'static>>) -> Contravariant<Lt<'l>> {
     ///     arg
     /// }
     /// ```
     #[allow(dead_code)]
-    fn contravariance<'l>(arg: Contravariant<&'l ()>) -> Contravariant<&'static ()> {
+    fn contravariance<'l>(arg: Contravariant<Lt<'l>>) -> Contravariant<Lt<'static>> {
         // This coercion is only legal because the lifetime parameter is
         // contravariant. If it were covariant or invariant,
         // this would not compile.
