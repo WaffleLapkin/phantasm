@@ -27,11 +27,11 @@
 //!   |
 //!   = help: consider removing `'a`, referring to it in a field, or using a marker such as `std::marker::PhantomData`
 //! ```
-//! This is an error because rust compiler doesn't know should `Slice` be
+//! This is an error because rust compiler doesn't know if `Slice` should be
 //! covariant, contravariant or invariant over `'a`. What this means is that
 //! rustc doesn't know if `Slice<'static, _>` should be a subtype of `Slice<'a,
 //! _>` or vice versa or neither. See [Subtyping and Variance][nom] nomicon
-//! chapter for better explanation
+//! chapter for better explanation.
 //!
 //! To mitigate this issue and control the variance there is a type called
 //! [`marker::PhantomData<T>`][phd]. [`PhantomData<T>`][phd] is a
