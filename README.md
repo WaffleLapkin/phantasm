@@ -12,4 +12,4 @@
 phantasm = "0.1"
 ```
 
-_Compiler support: requires rustc 1.31+ (the first release with stable `2018` edition)_   
+_Compiler support: requires rustc 1.40+_   

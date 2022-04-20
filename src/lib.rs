@@ -114,9 +114,16 @@
 //! ```
 //! struct Test<A, B>(phantasm::Covariant<(A, B)>);
 //! ```
+//!
+//! ## MSRV
+//!
+//! Minimal supported rustc version is `1.40.0`.
+//! I don't expect this crate to be changed much,
+//! so MSRV will likely stay constant for the rest of eternity.
 #![cfg_attr(not(test), no_std)] // `format!` is used in tests
 #![allow(type_alias_bounds)] // for :?Sized bound to appear in docs
-#![deny(missing_docs, rustdoc::broken_intra_doc_links)]
+#![deny(missing_docs)]
+//#![deny(rustdoc::broken_intra_doc_links)] // commented out to support rust < 1.52
 #![forbid(unsafe_code)]
 
 /// Marker zero-sized type that is invariant over `T`.
