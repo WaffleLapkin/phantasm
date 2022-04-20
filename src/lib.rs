@@ -12,7 +12,7 @@
 //! ## motivation
 //!
 //! In rust it's an error to have an unused generic param in struct:
-//! ```compile_fail
+//! ```compile_fail,E0392
 //! struct Slice<'a, T> {
 //!     start: *const T,
 //!     end: *const T,
@@ -116,7 +116,7 @@
 //! ```
 #![cfg_attr(not(test), no_std)] // `format!` is used in tests
 #![allow(type_alias_bounds)] // for :?Sized bound to appear in docs
-#![deny(missing_docs)]
+#![deny(missing_docs, rustdoc::broken_intra_doc_links)]
 #![forbid(unsafe_code)]
 
 /// Marker zero-sized type that is invariant over `T`.
