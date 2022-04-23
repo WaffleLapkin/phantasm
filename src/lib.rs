@@ -448,7 +448,7 @@ mod r#impl {
 
     impl core::fmt::Debug for Lt<'_> {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-            f.write_str("Life")
+            f.write_str("Lt")
         }
     }
 }
@@ -481,7 +481,7 @@ mod tests {
         assert_eq!(format!("{:?}", Invariant::<T>), "Invariant");
         assert_eq!(format!("{:?}", Covariant::<T>), "Covariant");
         assert_eq!(format!("{:?}", Contravariant::<T>), "Contravariant");
-        assert_eq!(format!("{:?}", Lt::<'static>), "Life");
+        assert_eq!(format!("{:?}", Lt::<'static>), "Lt");
     }
 
     /// ```compile_fail,E0308
